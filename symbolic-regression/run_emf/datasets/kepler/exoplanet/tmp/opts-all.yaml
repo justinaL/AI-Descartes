@@ -1,0 +1,20 @@
+infile: datasets/kepler/exoplanet//input.dat
+multitask: false
+nonconst_plusminus: false
+baron_exec: /Users/justinali/Desktop/AI_Descartes/baron-osxarm64/baron
+baronOpts: [MaxTime: 60;, PrTimeFreq: 1;, EpsA: 1e-4;, EpsR: 1e-3;]
+inputSampleSize: 50
+kill_existing_baron_jobs: true
+max_num_jobs: 45
+LicName: /Users/justinali/Desktop/AI_Descartes/baron-osxarm64/baronlice.txt
+printBaronFilesUpfront: true
+dimensionVars: {m0=[0, 0, 1, 0, 0], d=[1, 0, 0, 0, 0], t=[0, 1, 0, 0, 0], tsqr=[0, 2, 0, 0, 0], d1=[1, 0, 0, 0, 0], t1=[0, 1, 0, 0, 0], m=[0, 0, 1, 0, 0], M=[0, 0, 1, 0, 0]}
+use_dimensional_analysis: false
+relative_squared_error: false
+prod_exp_limit: 6
+operators: [*, /, +, sqrt]
+add_noise_to_input: false
+max_num_consts: 1
+dimensionUnits: [m, s, kg, T, V]
+max_var_exp: 3
+max_tree_depth: 3

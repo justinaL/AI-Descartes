@@ -1,0 +1,116 @@
+===========================================================================
+ BARON version 26.5.28. Built: OSX-64 2026-05-28 22:29:23           
+ Running on machine s-MacBook.local
+
+ BARON is a product of The Optimization Firm. For more information and 
+ related optimization and data analytics products visit https://minlp.com.
+
+
+ If you publish work using this software, please cite publications from
+ https://minlp.com/baron-publications, such as: 
+
+ Zhang, Y. and N. V. Sahinidis, Solving continuous and discrete
+ nonlinear programs with BARON, Comput Optim Appl, 92, 1123-1161, 2025. 
+ https://doi.org/10.1007/s10589-024-00633-0
+===========================================================================
+ This BARON run may utilize the following subsolver(s)
+ For LP/MIP/QP: CLP/CBC                                         
+ For NLP: IPOPT, FILTERSQP
+===========================================================================
+    The options used in solving the problem are as follows:
+       maxtime        =  0.6000E+02
+       maxiter        =      -1
+       numsol         =       1
+       firstfeas      =       0
+       firstloc       =       0
+       cutoff         =  0.1000E+52
+       target         = -0.1000E+52
+       epsa           =  0.1000E-03
+       epsr           =  0.1000E-02
+       relgaptype     =       4
+       deltaterm      =       0
+       deltaa         =  0.1000E+52
+       deltar         =  0.1000E+01
+       deltat         = -0.1000E+03
+       boxtol         =  0.1000E-07
+       isoltol        =  0.1000E-03
+       absconfeastol  =  0.1000E-05
+       relconfeastol  =  0.0000E+00
+       absintfeastol  =  0.1000E-04
+       relintfeastol  =  0.0000E+00
+       primalcstol    =  0.1000E-04
+       dualcstol      =  0.1000E-04
+       dualfeastol    =  0.1000E-04
+       ectol          =  0.1000E-04
+       results        =       1
+       summary        =       1
+       times          =       1
+       wantdual       =       1
+       prtimefreq     =  0.1000E+01
+       prfreq         = 1000000
+       prlevel        =       1
+       lpsol          =       8
+       nlpsol         =      -1
+       allowminos     =       0
+       allowsnopt     =       0
+       allowexternal  =       0
+       allowipopt     =       1
+       allowfiltersd  =       0
+       allowfiltersqp =       1
+       allowcplex     =       0
+       allowxpress    =       0
+       allowcbc       =       1
+       allowhsl       =       1
+       allowhighs     =       0
+       dolocal        =       1
+       numloc         =      20
+       locres         =       0
+       nouter1        =       4
+       noutpervar     =       4
+       noutiter       =       4
+       outgrid        =      20
+       tdo            =       1
+       mdo            =       1
+       obttdo         =       1
+       lbttdo         =       1
+       pdo            =      -2
+       brvarstra      =       0
+       brptstra       =       0
+       nodesel        =       0
+       compiis        =       0
+       iisint         =       1
+       iisorder       =      -1
+       images         =      -1
+       threads        =       1
+       userrel        =       0
+       usergencuts    =       0
+       usersearch     =       0
+       usertighten    =       0
+       problemisconvex=       0
+===========================================================================
+ Preprocessing found feasible solution with value 4646.65
+ Doing local search
+ Preprocessing found feasible solution with value 4646.64
+ Solving bounding LP
+ Starting multi-start local search
+ Done with local search
+===========================================================================
+  Iteration       Time (s)     Mem   Lower bound     Upper bound   Progress
+*         1           0.04    24MB     0.00000         291.480        9.37%
+          1           0.07    24MB     0.00000         291.480       10.22%
+*         6           0.08    24MB     0.00000         262.435       20.06%
+*         8           0.09    81MB     0.00000         123.888       20.06%
+*         9           0.10    81MB     0.00000         58.6685       20.06%
+          9           0.12    81MB     58.6685         58.6685      100.00%
+
+                         *** Normal completion ***            
+
+ Wall clock time:                     0.16
+ Total CPU time used:                 0.12
+
+ Total no. of BaR iterations:         9
+ Best solution found at node:         9
+ Max. no. of nodes in memory:         3
+
+ All done
+===========================================================================

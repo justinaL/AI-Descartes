@@ -4,8 +4,8 @@ max_num_jobs: 45
 
 multitask: false
 
-baron_exec: path_to_baron_executable/baron
-LicName: path_to_baron_license_file/baronlice.txt
+baron_exec: /Users/justinali/Desktop/AI_Descartes/baron-osxarm64/baron
+LicName: /Users/justinali/Desktop/AI_Descartes/baron-osxarm64/baronlice.txt
 
 baronOpts:
   - "MaxTime: 60;"

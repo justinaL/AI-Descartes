@@ -479,7 +479,7 @@ def run_kepler():
     print("Result for Kepler with constants: " + str(result_2))
 
 
-def run_kepler_solar():
+def run_kepler_solar(formulas=None):
     new_dir = f'{INPUT_PATH_KEYMAERA}/KeplerExperimentsSolar'
     if os.path.exists(new_dir):
         shutil.rmtree(new_dir)
@@ -522,13 +522,14 @@ def run_kepler_solar():
     # formulas = [['( 0.1319 * dN^3 )^(1/2)', 'sqrt( 0.1319 * dN**3 )'],
     #             ['( 0.1316 * ( dN^3 + dN ) )^(1/2)', 'sqrt( 0.1316 * ( dN**3 + dN ) )'],
     #             ['(( 0.03765 * dN^3 ) + dN^2 )/( 2.0 + dN )', '(( 0.03765 * dN**3 ) + dN**2 )/( 2.0 + dN )']]
-    formulas = [['( 0.1319 * dN^3 )^(1/2)', 'sqrt( 0.1319 * dN**3 )'],
-                ['( 0.1316 * ( dN^3 + dN ) )^(1/2)', 'sqrt( 0.1316 * ( dN**3 + dN ) )'],
-                ['(( 0.03765 * dN^3 ) + dN^2 )/( 2.0 + dN )', '(( 0.03765 * dN**3 ) + dN**2 )/( 2.0 + dN )']]
+    if formulas is None:
+        formulas = [['( 0.1319 * dN^3 )^(1/2)', 'sqrt( 0.1319 * dN**3 )'],
+                    ['( 0.1316 * ( dN^3 + dN ) )^(1/2)', 'sqrt( 0.1316 * ( dN**3 + dN ) )'],
+                    ['(( 0.03765 * dN^3 ) + dN^2 )/( 2.0 + dN )', '(( 0.03765 * dN**3 ) + dN**2 )/( 2.0 + dN )']]
     run_pipeline(variables, constants, data_points, axioms, interest_variable, formulas, PRECISION, "KeplerExperimentsSolar")
 
 
-def run_kepler_exoplanets():
+def run_kepler_exoplanets(formulas=None):
     new_dir = f'{INPUT_PATH_KEYMAERA}/KeplerExperimentsExoPlanets'
     if os.path.exists(new_dir):
         shutil.rmtree(new_dir)
@@ -580,9 +581,10 @@ def run_kepler_exoplanets():
     #   pay attention to:
     #       - power operator: keymaera ^ ;  python **
     #       - square root operator: keymaera (expr)^(1/2) ;  python sqrt(expr)
-    formulas = [['(( 0.1319 * (dN^3)) / m1N )^(1/2)', 'sqrt(( 0.1319 * (dN**3)) / m1N)'],
-                ['( ( ( m1N^2 * m2N^3 )/( dN ) ) + ( 0.1319 * ( dN^3 / m1N )))^(1/2)', 'sqrt(( ( m1N**2 * m2N**3 )/( dN ) ) + ( 0.1319 * ( dN**3 / m1N )))'],
-                ['(( ( 1.0 - ( 0.7362 * m1N )) * ( dN^3 ))/ 2.0 )^(1/2)', 'sqrt(( ( 1.0 - ( 0.7362 * m1N )) * ( dN**3 ) )/ 2.0)']]
+    if formulas is None:
+        formulas = [['(( 0.1319 * (dN^3)) / m1N )^(1/2)', 'sqrt(( 0.1319 * (dN**3)) / m1N)'],
+                    ['( ( ( m1N^2 * m2N^3 )/( dN ) ) + ( 0.1319 * ( dN^3 / m1N )))^(1/2)', 'sqrt(( ( m1N**2 * m2N**3 )/( dN ) ) + ( 0.1319 * ( dN**3 / m1N )))'],
+                    ['(( ( 1.0 - ( 0.7362 * m1N )) * ( dN^3 ))/ 2.0 )^(1/2)', 'sqrt(( ( 1.0 - ( 0.7362 * m1N )) * ( dN**3 ) )/ 2.0)']]
     run_pipeline(variables, constants, data_points, axioms, interest_variable, formulas, PRECISION, "KeplerExperimentsExoPlanets")
 
 

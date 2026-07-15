@@ -1,0 +1,55 @@
+// NODE 3 1 (P) Pn0_0_6
+//use_max_num_consts false
+
+OPTIONS {
+ ResName: "datasets/kepler/solar//tmp/b0_P//b0.res";
+ TimName: "datasets/kepler/solar//tmp/b0_P//b0.tim";
+ LicName: "/Users/justinali/Desktop/AI_Descartes/baron-osxarm64/baronlice.txt";
+  MaxTime: 60;
+  PrTimeFreq: 1;
+  EpsA: 1e-4;
+  EpsR: 1e-3;
+}
+
+
+INTEGER_VARIABLES exp0m_abs,exp0m,exp0d_abs,exp0d;
+
+VARIABLES C0;
+
+LOWER_BOUNDS {
+  exp0m_abs: 0;
+  exp0m: -3;
+  exp0d_abs: 0;
+  exp0d: -3;
+  C0: -100;
+}
+
+UPPER_BOUNDS {
+  exp0m_abs: 3;
+  exp0m: 3;
+  exp0d_abs: 3;
+  exp0d: 3;
+  C0: 100;
+}
+
+EQUATIONS exp0m_abs_ub,exp0m_abs_lb,exp0d_abs_ub,exp0d_abs_lb,expbnd0;
+
+exp0m_abs_ub: exp0m_abs - exp0m >= 0.0;
+exp0m_abs_lb: exp0m - -exp0m_abs >= 0.0;
+exp0d_abs_ub: exp0d_abs - exp0d >= 0.0;
+exp0d_abs_lb: exp0d - -exp0d_abs >= 0.0;
+expbnd0: 0.0 <= exp0m_abs + exp0d_abs <= 6.0;
+
+
+
+
+OBJ: minimize
+ (-0.088 + C0 * exp(-2.8949823704538478*exp0m + -0.9493305859523552*exp0d))^2 +
+ (-0.2247 + C0 * exp(-0.2045671657412744*exp0m + -0.32393120512690193*exp0d))^2 +
+ (-0.3652 + C0 * exp(0*exp0m + 0*exp0d))^2 +
+ (-0.687 + C0 * exp(-2.234926444520231*exp0m + 0.42094467895655074*exp0d))^2 +
+ (-4.331 + C0 * exp(5.761516648640389*exp0m + 1.649523635973386*exp0d))^2 +
+ (-10.747 + C0 * exp(4.555559685434757*exp0m + 2.2599072107123166*exp0d))^2 +
+ (-30.589 + C0 * exp(2.6769034721053733*exp0m + 2.9549727770806924*exp0d))^2 +
+ (-59.8 + C0 * exp(2.8419981736119486*exp0m + 3.4027794628448067*exp0d))^2 +
+ 0;

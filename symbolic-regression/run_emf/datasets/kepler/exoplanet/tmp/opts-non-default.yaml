@@ -1,0 +1,8 @@
+max_num_jobs: 45
+multitask: false
+max_num_consts: 1
+prod_exp_limit: 6
+max_var_exp: 3
+printBaronFilesUpfront: true
+kill_existing_baron_jobs: true
+inputSampleSize: 50
