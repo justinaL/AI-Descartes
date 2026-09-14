@@ -367,12 +367,19 @@ def convert_problem_keymaera(constants, variables, interest_variable, axioms, fo
     formula_keymaera.append('\t\t)')
     formula_keymaera.append('\t->')
     formula_keymaera.append('\t\t(')
+    # BUGFIX: the original emitted a one-sided test, '(f - y)/y < relerr^2'.
+    # With no absolute value an under-estimating formula gives a negative left
+    # side, which satisfies any positive bound; the binary search then collapses
+    # to its precision floor and reports a meaningless ~0 error. Use |.| < relerr,
+    # written as a two-sided bound so no abs() is needed by the prover.
+    _err = '( ( ' + formula.keymaera_string + ' ) - ' + interest_variable + ' ) / ' + interest_variable
+    _bounded = '( - relerr < ' + _err + ' & ' + _err + ' < relerr )'
     if measure == 'interval':
-        formula_keymaera.append('\t\t ( ( ' + formula.keymaera_string + ' ) - ' + interest_variable + ' ) / ' + interest_variable + ' < relerr^2')
+        formula_keymaera.append('\t\t ' + _bounded)
     elif measure == 'dependencies':
-        formula_keymaera.append('\t\t ( ( ' + formula.keymaera_string + ' ) - ' + interest_variable + ' ) / ' + interest_variable + ' < relerr^2')
+        formula_keymaera.append('\t\t ' + _bounded)
     elif measure == 'pointwiseL2':
-        formula_keymaera.append('\t\t ( ( ( ' + formula.keymaera_string + ' ) - ' + interest_variable + ' ) / ' + interest_variable + ') < relerr^2')
+        formula_keymaera.append('\t\t ' + _bounded)
     elif measure == 'pointwiseLinf':
         not_first_line = False
         for datapoint in data:
@@ -392,7 +399,7 @@ def convert_problem_keymaera(constants, variables, interest_variable, axioms, fo
                         not_first_variable = True
                     stringa += i + '=' + str(datapoint[i])
             stringa += ' ) -> ('
-            stringa += ' ( ( ' + formula.keymaera_string + ' ) - ' + interest_variable + ' ) / ' + interest_variable + ' < relerr^2'
+            stringa += ' ' + _bounded
             stringa += ' ) ) '
             formula_keymaera.append(stringa)
     elif measure == 'derivation':
