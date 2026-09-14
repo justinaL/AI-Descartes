@@ -1,11 +1,11 @@
 """
 PySR entry point for the SR module -- an open-source replacement for BARON.
 
-Mirrors the emf.sh / runnableemf.jar interface: the dataset directory is passed
+The dataset directory is passed
 in as an argument, and everything is printed to stdout so it can be redirected
 to a log file.
 
-Usage (from run_emf/, same convention as emf.sh):
+Usage (from run_emf/):
     python run_pysr.py datasets/kepler/solar > kepler_solar.log
 
 The dataset directory must contain an input.dat file whose first line is the
@@ -64,6 +64,7 @@ def main():
         random_state=0,
         deterministic=True,
         parallelism="serial",     # required for reproducibility with random_state
+        progress=False,           # progress bar deadlocks when stdout is redirected to a file
         output_directory=dataset_dir,   # PySR writes artifacts to <dir>/<run_id>/
         run_id="pysr",                  # -> the "pysr" output folder (replaces tmp/)
     )

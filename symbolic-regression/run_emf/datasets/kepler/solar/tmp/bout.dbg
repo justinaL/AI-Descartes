@@ -1,2 +1,0 @@
-dimunit: [m, kg]
-varsByDU: {d={m=1, s=0, kg=0, T=0, V=0}, m={m=0, s=0, kg=1, T=0, V=0}}

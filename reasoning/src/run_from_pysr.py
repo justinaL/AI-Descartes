@@ -7,8 +7,8 @@ front to <dataset_dir>/pysr/pysr_equations.csv.  This script reads the
 [keymaera_format, python_format] pairs expected by
 pipeline_keymaera_3problems.py, and runs the reasoning pipeline on them.
 
-It reuses the tokenizer / converter / per-problem config from run_from_sr.py
-unchanged -- only the input side differs (a CSV instead of a BARON log).
+Self-contained: the tokenizer, converter and per-problem config live here, so
+this script has no dependency on the original BARON-era bridge.
 
 Formulas PySR can produce that the reasoning converter cannot represent
 (e.g. variable exponents like `1.1254 ^ m`) are skipped with a warning; the
@@ -24,10 +24,25 @@ Defaults to the kepler/solar Pareto front.
 import argparse
 import csv
 import os
+import re
 import sys
 from fractions import Fraction
 
-import run_from_sr as rfs   # reuse PROBLEMS, convert(), tokenizer, renderer
+# Per-problem config: SR dataset column names -> reasoning pipeline variable
+# names (from the dataset's input.dat header; the target column never appears
+# in the candidate formulas), and the pipeline function to run.
+# solar input.dat:     ** m d t     exoplanet input.dat: ** M m d t1
+PROBLEMS = {
+    'solar':     {'var_map': {'m': 'm2N', 'd': 'dN'},
+                  'runner': 'run_kepler_solar'},
+    'exoplanet': {'var_map': {'M': 'm1N', 'm': 'm2N', 'd': 'dN'},
+                  'runner': 'run_kepler_exoplanets'},
+}
+
+TOKEN_RE = re.compile(r'\d+\.\d+(?:[eE][+-]?\d+)?|\d+(?:[eE][+-]?\d+)?'
+                      r'|[A-Za-z_]\w*|\*\*|[*/+\-()^]')
+
+NUMBER_RE = re.compile(r'^\d+(\.\d+)?([eE][+-]?\d+)?$')
 
 # measures the reasoning pipeline can evaluate; `derivation` (is the formula
 # derivable from the axioms?) is the fast, central AI-Descartes question, while
@@ -59,6 +74,77 @@ def parse_csv(csv_path):
             seen.add(expr)
             unique.append((loss, complexity, expr))
     return unique
+
+
+def tokenize(expr):
+    tokens = TOKEN_RE.findall(expr)
+    if ''.join(tokens).replace(' ', '') != expr.replace(' ', ''):
+        raise ValueError(f'could not fully tokenize SR expression: {expr}')
+    return tokens
+
+
+def to_atoms(tokens, var_map):
+    """Merge power operators into their base token and rename variables,
+    returning a list of atoms to be joined with spaces."""
+    atoms = []
+    i = 0
+    while i < len(tokens):
+        tok = tokens[i]
+        if tok in ('^', '**'):
+            # exponent: optional minus, then a number (SR prints e.g. ^2, ^-2, ^0.5)
+            j = i + 1
+            neg = False
+            if j < len(tokens) and tokens[j] == '-':
+                neg = True
+                j += 1
+            if j >= len(tokens) or not NUMBER_RE.match(tokens[j]):
+                raise ValueError(f'unsupported exponent after ^ in: {" ".join(tokens)}')
+            exp = ('-' if neg else '') + tokens[j]
+            if not atoms:
+                raise ValueError(f'power with no base in: {" ".join(tokens)}')
+            atoms[-1] = (atoms[-1][0], atoms[-1][1], exp)
+            i = j + 1
+            continue
+        if NUMBER_RE.match(tok):
+            atoms.append(('num', tok, None))
+        elif re.match(r'^[A-Za-z_]\w*$', tok):
+            if tok not in var_map:
+                raise ValueError(f'SR variable "{tok}" has no mapping to a pipeline '
+                                 f'variable (known: {var_map})')
+            atoms.append(('var', var_map[tok], None))
+        else:
+            atoms.append(('op', tok, None))
+        i += 1
+    return atoms
+
+
+def render(atoms, target):
+    """Render atoms as a keymaera or python formula string.
+
+    Follows the pipeline's format rules: spaces between terms so that numeric
+    constants are whitespace-delimited tokens (Formula.__init__ lifts those to
+    existential constants), exponents glued to their base, integer constants
+    written with .0, and sqrt as (expr)^(1/2) in keymaera format.
+    """
+    parts = []
+    for kind, val, exp in atoms:
+        if kind == 'num' and '.' not in val and 'e' not in val and 'E' not in val:
+            val += '.0'
+        if exp is not None:
+            if target == 'keymaera':
+                e = '(1/2)' if exp == '0.5' else (f'({exp})' if exp.startswith('-') else exp)
+                val = f'{val}^{e}'
+            else:
+                e = f'({exp})' if exp.startswith('-') else exp
+                val = f'{val}**{e}'
+        parts.append(val)
+    return ' '.join(parts)
+
+
+def convert(expr, var_map):
+    """Convert an SR expression to [keymaera_string, python_string]."""
+    atoms = to_atoms(tokenize(expr), var_map)
+    return [render(atoms, 'keymaera'), render(atoms, 'python')]
 
 
 def snap_exponent(exp_str, tol, max_den):
@@ -97,7 +183,7 @@ def _apply_fraction(inner, exp, op):
 
 
 def _apply_string(inner, exp, op):
-    """Apply an un-snapped original exponent string (rfs.render's behaviour)."""
+    """Apply an un-snapped original exponent string (render's behaviour)."""
     if op == '^':
         e = '(1/2)' if exp == '0.5' else (f'({exp})' if exp.startswith('-') else exp)
     else:
@@ -106,7 +192,7 @@ def _apply_string(inner, exp, op):
 
 
 def render_snapped(atoms, target):
-    """Like rfs.render, but Fraction exponents are rewritten into the pipeline's
+    """Like render, but Fraction exponents are rewritten into the pipeline's
     root form.  The exponent sits on the preceding atom -- often a ')' closing a
     parenthesised base -- so we track paren nesting to wrap the whole group."""
     op = '^' if target == 'keymaera' else '**'
@@ -140,9 +226,9 @@ def render_snapped(atoms, target):
 
 
 def convert_snapped(expr, var_map, tol, max_den):
-    """Convert like rfs.convert, but snap near-rational exponents first.
+    """Convert like convert, but snap near-rational exponents first.
     Returns [keymaera_string, python_string]."""
-    atoms = rfs.to_atoms(rfs.tokenize(expr), var_map)
+    atoms = to_atoms(tokenize(expr), var_map)
     snapped = [(k, v, snap_exponent(e, tol, max_den) if e is not None else e)
                for (k, v, e) in atoms]
     return [render_snapped(snapped, 'keymaera'), render_snapped(snapped, 'python')]
@@ -154,7 +240,7 @@ def main():
     parser.add_argument('csv', nargs='?', default=None,
                         help='PySR pysr_equations.csv (default: the problem\'s '
                              'Pareto front)')
-    parser.add_argument('--problem', choices=sorted(rfs.PROBLEMS), default='solar',
+    parser.add_argument('--problem', choices=sorted(PROBLEMS), default='solar',
                         help='which Kepler dataset the CSV comes from '
                              '(default: solar)')
     parser.add_argument('--top', type=int, default=None,
@@ -201,7 +287,7 @@ def main():
     if not candidates:
         sys.exit(f'No equations found in {csv_path} — did the PySR run finish?')
 
-    problem = rfs.PROBLEMS[args.problem]
+    problem = PROBLEMS[args.problem]
     formulas = []
     skipped = 0
     print(f'Found {len(candidates)} candidate formula(s) in {csv_path}'
@@ -212,7 +298,7 @@ def main():
                 pair = convert_snapped(expr, problem['var_map'],
                                        args.snap_tol, args.snap_max_den)
             else:
-                pair = rfs.convert(expr, problem['var_map'])
+                pair = convert(expr, problem['var_map'])
         except ValueError as e:
             skipped += 1
             print(f'  [skip] c{complexity} loss={loss:g}   {expr}')

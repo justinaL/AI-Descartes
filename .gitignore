@@ -185,3 +185,7 @@ reasoning/test_data/test_keymaera/test.kyp
 reasoning/test_data/test_keymaera/test_out.txt
 reasoning/test_data/test_keymaera/test_neg.kyp
 reasoning/test_data/test_keymaera/test_neg_out.txt
+# SWaT raw data (large, licensed - keep outside the repo)
+SWaT_raw/
+*.csv
+!symbolic-regression/run_emf/datasets/**/*.csv
